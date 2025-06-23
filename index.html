@@ -105,15 +105,6 @@
                 progressBarFull.style.width = 100 * progress + "%";
             }).then(function(unityInstance) {
                 loadingBar.style.display = "none";
-                
-                // Отключаем fullscreen в iframe VK
-                if (!isVKFrame) {
-                    fullscreenButton.onclick = function() {
-                        unityInstance.SetFullscreen(1);
-                    };
-                } else {
-                    fullscreenButton.style.display = "none";
-                }
             }).catch(function(message) {
                 unityShowBanner("Unity initialization failed: " + message, "error");
             });
@@ -121,10 +112,6 @@
 
         document.body.appendChild(script);
 
-        // Отправляем сообщение в родительский фрейм (для интеграции с VK)
-        if (isVKFrame) {
-            window.parent.postMessage({ type: 'vk_loaded' }, '*');
-        }
     </script>
 </body>
 </html>
