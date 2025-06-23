@@ -3,19 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!-- Оптимизированная CSP для Unity WebGL + VK -->
+    <!-- Оптимизированная CSP для Unity WebGL -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self' data: blob: https://andreyfly.github.io https://vk.com *.vk.com;
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://andreyfly.github.io https://vk.com *.vk.com;
-        style-src 'self' 'unsafe-inline' https://andreyfly.github.io;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://andreyfly.github.io https://vk.com *.vk.com;
+        script-src-elem 'self' 'unsafe-inline' blob: https://andreyfly.github.io https://vk.com *.vk.com;
+        style-src 'self' 'unsafe-inline';
         img-src 'self' data: blob: https://*;
-        font-src 'self' data:;
-        connect-src 'self' https://andreyfly.github.io https://vk.com;
-        frame-src 'self' https://vk.com;
+        connect-src 'self' blob: https://andreyfly.github.io https://vk.com;
+        frame-src 'self' blob: https://vk.com;
         worker-src 'self' blob:;
-        media-src 'self' data:;
     ">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Unity WebGL Player | Test</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
