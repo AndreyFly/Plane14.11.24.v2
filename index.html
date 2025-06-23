@@ -1,221 +1,106 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Good Forces - Unity WebGL Player | {{{ PRODUCT_NAME }}}</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <link rel="manifest" href="manifest.webmanifest">
-  </head>
-  <body>
+<html>
+<head>
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' blob: data: https://*.vk.com;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.vk.com;
+        style-src 'self' 'unsafe-inline';
+        frame-src 'self' https://*.vk.com;
+        worker-src 'self' blob:;
+    ">
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%;
+            overflow: hidden;
+        }
+        #unity-container { 
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            background: #231F20;
+        }
+    </style>
+</head>
+<body>
     <div id="unity-container">
-      <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
+        <canvas id="unity-canvas"></canvas>
     </div>
-<!--    <script src="https://unpkg.com/@vkontakte/superappkit@1.57.0/dist/index-umd.js"></script>-->
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
     <script>
-      window.addEventListener("load", function () {
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.register("ServiceWorker.js");
+    // Проверка загрузки в iframe VK
+    const isVKFrame = (() => {
+        try {
+            return window.parent !== window && /vk\.com/i.test(window.parent.location.hostname);
+        } catch (e) {
+            return false;
         }
-      });
-      
-      console.info( window );
-      console.info( window.vkBridge );
-      //console.info( window.SuperAppKit );
+    })();
 
-      window.vkBridge.send('VKWebAppInit', {});
-
-      // window.vkBridge.send("VKWebAppShowOrderBox", {type:"item", item:"item_id_123"});
-      // Подписка на событие-результат
-      window.vkBridge.subscribe((e) => {
-        console.log( "vkBridge event ----------------------------" );
-        console.info( e );
-        // if(e.type === 'VKWebAppShowOrderBoxResult') {
-        // console.log(e.data.status);
-      // }
-      });
-
-      // window.vkBridge.send('VKWebAppShowSubscriptionBox',
-      //         {
-      //           action: 'create',
-      //           item: 'subscription_in-app_id',
-      //         })
-      //         .then( (data) => {
-      //                   if (data.success) {
-      //                     // Оплата голосами прошла успешно
-      //                     // ...
-      //                     console.log("OKOKOK");
-      //                   } else {
-      //                     console.log("ELSE");
-      //                   }
-      //                 }
-      //           )
-      //         .catch( (e) => {
-      //             console.log(e);   // Ошибка
-      //           });
-      
-      //window.vkBridge.send("VKWebAppShowOrderBox", {type:"item", item:"item_id_123"});
-      window.vkBridge.send('VKWebAppShowOrderBox', {
-        type: 'item',
-        item: 'sale_item_1'
-      })
-              .then((data) => {
-                if (data.success) {
-                  console.log("OKOKOK");
-                  // Оплата голосами прошла успешно
-                }})
-              .catch((error) => {
-                // Ошибка
-                console.log(error);
-              });
-      // window.vkBridge.send("VKWebAppOpenPayForm", {"app_id": 51728161, "action": "pay-to-service", "params": {
-      //     "amount": 1.5,
-      //     "data": {
-      //       "currency": "RUB",
-      //       "merchant_data": "eyJvcmRlcl9pZCI6IjI1NTMxIiwidHMiOiIxNTM5MzI5NzcwIiwiYW1vdW50IjoxLjUsImN1cnJlbmN5IjoiUlVCIn0=",
-      //       "merchant_sign": "63d5dce9d2c9d29198ba12ba3f8e270e6606a221",
-      //       "order_id": "25531",
-      //       "ts": "1539329770"
-      //     },
-      //     "description": "Test Payment",
-      //     "action": "pay-to-service",
-      //     "merchant_id": 617001,
-      //     "version": 2,
-      //     "sign": "818964335a550e39d9a1dd0d752e60ab"
-      //   }});
-      // const { Connect, Config } = window.SuperAppKit;
-      //
-      // Config.init({
-      //   appId: appId, // идентификатор приложения
-      // });
-
-      window.unityInstance = null;
-
-      window.idb = null;
-
-      let indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-
-      let open = indexedDB.open("RA1", 2);
-
-      open.onupgradeneeded = function() {
-        let db = open.result;
-        let store = db.createObjectStore("Saves", {keyPath: "id"});
-        //    var index = store.createIndex("NameIndex", ["name.last", "name.first"]);
-      };
-
-      open.onsuccess = function() {
-        window.idb = open.result;
-      };
-      
-      window.getIndexedDB = function () {
-        return window.idb;
-      };
-
-      // const queryString = window.location.search;
-      // console.log("queryString = " + queryString);
-      //
-      // const urlParams = new URLSearchParams(queryString);
-      // const entries = urlParams.entries();
-      // for(const entry of entries) {
-      //   console.log(`${entry[0]}: ${entry[1]}`);
-      // }
-      
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var warningBanner = document.querySelector("#unity-warning");
-
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+    // Адаптивный размер canvas
+    function resizeCanvas() {
+        const canvas = document.getElementById('unity-canvas');
+        if (!canvas) return;
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        if (typeof unityInstance !== 'undefined') {
+            unityInstance.SetFullscreen(0);
+            unityInstance.Quit().then(() => {
+                unityInstance = null;
+                loadUnity();
+            });
         }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
+    }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
-      var config = {
-        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
-        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
-#if USE_THREADS
-        workerUrl: buildUrl + "/{{{ WORKER_FILENAME }}}",
-#endif
-#if USE_WASM
-        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
-#endif
-#if MEMORY_FILENAME
-        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
-#endif
-#if SYMBOLS_FILENAME
-        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
-#endif
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
-        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
-        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
-        showBanner: unityShowBanner,
-      };
+    // Загрузка Unity
+    function loadUnity() {
+        const buildUrl = 'Build';
+        const config = {
+            dataUrl: buildUrl + '/WEB.data',
+            frameworkUrl: buildUrl + '/WEB.framework.js',
+            codeUrl: buildUrl + '/WEB.wasm',
+            streamingAssetsUrl: 'StreamingAssets',
+            companyName: 'YourCompany',
+            productName: 'YourGame',
+            productVersion: '1.0',
+        };
 
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+        const script = document.createElement('script');
+        script.src = config.frameworkUrl;
+        script.onload = () => {
+            createUnityInstance(document.getElementById('unity-canvas'), config)
+                .then(instance => {
+                    window.unityInstance = instance;
+                    if (isVKFrame) {
+                        document.body.style.overflow = 'hidden';
+                        window.addEventListener('resize', resizeCanvas);
+                        resizeCanvas();
+                    }
+                })
+                .catch(err => {
+                    console.error('Unity init error:', err);
+                });
+        };
+        script.onerror = () => console.error('Failed to load Unity framework');
+        document.body.appendChild(script);
+    }
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-      }
-
-#if BACKGROUND_FILENAME
-      canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
-#endif
-      loadingBar.style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-          window.unityInstance = unityInstance;
-        }).catch((message) => {
-          alert(message);
+    // Инициализация
+    if (isVKFrame) {
+        window.addEventListener('message', (e) => {
+            if (e.data === 'vk_init') loadUnity();
         });
-      };
-      document.body.appendChild(script);
+        window.parent.postMessage('vk_ready', '*');
+    } else {
+        loadUnity();
+    }
     </script>
-  </body>
+</body>
 </html>
